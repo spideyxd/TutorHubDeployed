@@ -1,0 +1,2 @@
+1 . graduation year mentor wale chale jate h agar mentee me change krde role to .. we have to assign it to null if we are changing role
+2 . You can't change role once edited .
