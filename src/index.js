@@ -8,6 +8,7 @@ import ResponsiveDrawer from "./components/Dashboard";
 import SignUp from "./components/Signup";
 import Error from "./components/Error";
 import Team from "./components/Team";
+import Search from "./components/Search";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <>
@@ -20,6 +21,7 @@ root.render(
         <Route path="signup" element={<SignUp/>} />
         <Route path="error" element={<Error/>} />
         <Route path="team" element={<Team/>} />
+        <Route path="search" element={<Search/>} />
 
       </Routes>
     </BrowserRouter>

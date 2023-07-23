@@ -48,9 +48,9 @@ export default function ResponsiveDrawer() {
       });
   }, []);
 
-  const { firstName, role, graduationYear } = user;
+  const { firstName } = user;
 
-  const userData = [firstName, "JIIT", role, graduationYear];
+  const userData = [firstName];
 
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -134,42 +134,13 @@ export default function ResponsiveDrawer() {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {/* <AppBar
-        style={{ backgroundImage: "linear-gradient(#000000,#130F40)" }}
-        position="fixed"
-      >
-        <Toolbar>
-          <IconButton
-            size="large"
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            style={{ textTransform: "capitalize", fontFamily: "Barlow" }}
-            variant="h5"
-          >
-            
-            Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar> */}
+      
       <AppBar
         position="fixed"
         style={{ backgroundImage: "linear-gradient(#000000,#130F40)" }}
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar>
-          {/* <IconButton
-            size="large"
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-          >
-            <MenuIcon />
-          </IconButton> */}
           <Typography
             style={{ textTransform: "capitalize", fontFamily: "Barlow" }}
             variant="h4"
@@ -178,10 +149,10 @@ export default function ResponsiveDrawer() {
           </Typography>
         </Toolbar>
       </AppBar>
-      {/* <Box sx={{ width: { sm: drawerWidth } }}> */}
+     
       <Drawer 
         variant="permanent"
-        // style={{ backgroundImage: "linear-gradient(#000000,#130F40)" }}
+        
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -195,8 +166,6 @@ export default function ResponsiveDrawer() {
         </Box>
       </Drawer>
 
-      {/* </Box> */}
-
       <Box component="main"
         sx=
         {{
@@ -208,14 +177,9 @@ export default function ResponsiveDrawer() {
           alignItems: "center",
           mt: "4.5vh",
         }}
-        >
-        {rolee === "Mentor" ? (
-          
+        >        
           <DashMentor arr={user.mentors !== undefined ? user.mentors : []} />
-        ) : (
-          <DashMentee name={user.firstName} email={user.email} />
-        )}
-      </Box>
+        </Box>
     </Box>
   );
 }

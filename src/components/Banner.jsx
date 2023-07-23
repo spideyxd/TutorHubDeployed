@@ -28,21 +28,7 @@ const Banner = () => {
           >
             <Button
               onClick={() => {
-                fetch(`${BASE_URL}/getinfo`, {
-                  method: "GET",
-                  headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json",
-                  },
-                  credentials: "include",
-                })
-                  .then((data) => data.json())
-                  .then((data) => {
-                    nav("/dashboard");
-                  })
-                  .catch((err) => {
-                    nav("/login");
-                  });
+                    nav("/search");
               }}
               variant="outlined"
               color="error"
@@ -130,35 +116,18 @@ const Banner = () => {
               </Typography>
 
               <Button
-                onClick={() => {
-                  fetch(`${BASE_URL}/getinfo`, {
-                    method: "GET",
-                    headers: {
-                      Accept: "application/json",
-                      "Content-Type": "application/json",
-                    },
-                    credentials: "include",
-                  })
-                    .then((response) => response.json()) // Parse the response JSON
-                    .then((data) => {
-                      console.log(data); // Log the parsed response data
-                      console.log("trying in banner");
-                      nav("/dashboard"); // Navigate to "/dashboard" after processing the response data
-                    })
-                    .catch((err) => {
-                      console.error(err);
-                      nav("/login"); // Navigate to "/login" if there's an error
-                    });
-                }}
-                variant="outlined"
-                color="error"
-                style={{
-                  borderRadius: "50px",
-                  marginTop: "6vh",
-                  marginLeft: "auto",
-                  marginRight: "auto",
-                }}
-              >
+              onClick={() => {
+                    nav("/search");
+              }}
+              variant="outlined"
+              color="error"
+              style={{
+                borderRadius: "50px",
+                marginTop: "6vh",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
                 Connect Now
               </Button>
             </div>

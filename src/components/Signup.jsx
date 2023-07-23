@@ -1,242 +1,209 @@
-import * as React from "react";
-import FormHelperText from "@mui/material/FormHelperText";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import CssBaseline from "@mui/material/CssBaseline";
-import TextField from "@mui/material/TextField";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import InputLabel from "@mui/material/InputLabel";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import * as yup from "yup";
-import { useFormik } from "formik";
+import React from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { useNavigate } from "react-router-dom";
-// require('dotenv').config();
+import {
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Container,
+  Grid,
+  Box,
+  Typography,
+  createTheme,
+  ThemeProvider,
+} from '@material-ui/core';
+import { Autocomplete } from '@mui/material';
 
-const domains = [
-  "SDE",
-  "Web Development",
-  "App Development",
-  "Analytics",
-  "Non-Tech",
-];
-
+const subjects = ['Math', 'Science', 'History', 'English', 'Computer Science'];
+const classes = [9, 10, 11, 12];
 const BASE_URL=process.env.REACT_APP_BASE_URL;
-
-const validationSchema = yup.object({
-  email: yup
-    .string("Enter your email")
-    .email("Enter a valid email")
-    .required("Email is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(8, "Password is too short - should be 8 characters minimum."),
-
-  firstName: yup
-    .string("Enter your first name")
-    .min(2, "First Name should be of minimum 2 characters length")
-    .required("First Name is required"),
-  lastName: yup
-    .string("Enter your last name")
-    .min(2, "Last Name should be of minimum 2 characters length")
-    .required("Last Name is required"),
+const validationSchema = Yup.object().shape({
+  firstName: Yup.string().required('First Name is required'),
+  lastName: Yup.string().required('Last Name is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  subject: Yup.string().required('Please select a subject'),
+  classes: Yup.array().min(1, 'Please select at least one class').required('Please select at least one class'),
+  bio: Yup.string().required('Bio is required'),
 });
 
-export default function SignUp() {
-  const nav = useNavigate();
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-    },
-    validationSchema: validationSchema,
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Poppins, Arial, sans-serif',
+  },
+});
 
-    onSubmit: (values) => {
-      console.log("try1");
-      fetch(`${BASE_URL}/register`, {
-        method: "POST",
+const MyForm = () => {
+  const nav = useNavigate();
+  const handleSubmit = async (values) => {
+
+       fetch(`${BASE_URL}/register`, {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(values),
+      }) .then((response) => response.json())
+      .then((data) => {
+        if (data.msg === "error") alert("Email already exist");
+        else {
+          alert("Registration Successfull");
+          nav("/login");
+        }
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.msg === "error") alert("Email already exist");
-          else {
-            alert("Registration Successfull");
-            nav("/login");
-          }
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    },
-  });
-
-  const myStyle = {
-    borderRadius: "5px",
-    color: "white",
-    backgroundColor: "#ffffff",
-    padding: "10px",
-    backgroundImage: "linear-gradient(to right,#BDC3C7, #2C3E50)",
-  };
-
-  // w
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };  
 
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <Container component="main" maxWidth="sm">
-        <CssBaseline />
-        <Box
-          style={myStyle}
-          sx={{
-            marginTop: 8,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: "#010915" }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography
-            component="h1"
-            style={{
-              fontFamily: "BarlowThicc",
-              color: "#121212",
-              fontSize: "3em",
-            }}
-            variant="h4"
-          >
-            Sign Up
+    <ThemeProvider theme={theme}>
+      <Container maxWidth="sm">
+        <Box mt={4} p={3} bgcolor="#fff" color="#333" borderRadius={8}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Register Form
           </Typography>
-          <Box component="form" sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="First Name"
-                  value={formik.values.firstName}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.firstName && Boolean(formik.errors.firstName)
-                  }
-                  helperText={
-                    formik.touched.firstName && formik.errors.firstName
-                  }
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
-                  fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                  value={formik.values.lastName}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.lastName && Boolean(formik.errors.lastName)
-                  }
-                  helperText={formik.touched.lastName && formik.errors.lastName}
-                />
-              </Grid>
-              <Grid item xs={12} sm={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  error={formik.touched.email && Boolean(formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
-                />
-              </Grid>
-              <Grid item xs={12} sm={12}>
-                <TextField
-                  type="password"
-                  autoComplete="password"
-                  name="password"
-                  required
-                  fullWidth
-                  id="password"
-                  label="Password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  error={
-                    formik.touched.password && Boolean(formik.errors.password)
-                  }
-                  helperText={formik.touched.password && formik.errors.password}
-                  autoFocus
-                />
-              </Grid>
-              {/* <Grid item xs={12} sm={6}>
-                <FormControl sx={{ width: 300 }}>
-                  <InputLabel id="Role_">Role</InputLabel>
-                  <Select
-                    labelId="role"
-                    id="role"
-                    name="role"
-                    value={formik.values.role}
-                    label="Role"
-                    onChange={formik.handleChange}
-                    error={formik.touched.role && Boolean(formik.errors.role)}
-                    helperText={formik.touched.role && formik.errors.role}
-                  >
-                    <MenuItem value="Mentor">Mentor</MenuItem>
-                    <MenuItem value="Mentee">Mentee</MenuItem>
-                  </Select>
-                  {formik.touched.role && formik.errors.role ? (
-                    <FormHelperText
-                      sx={{ color: "#bf3333", marginLeft: "16px !important" }}
-                    >
-                      {formik.touched.role && formik.errors.role}
-                    </FormHelperText>
-                  ) : null}
-                </FormControl>
-              </Grid> */}
-
-          
+          <Formik
+            initialValues={{
+              firstName: '',
+              lastName: '',
+              email: '',
+              password: '',
+              subject: '',
+              classes: [],
+              bio: '',
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ values, errors, touched, handleChange, handleBlur, handleSubmit, setFieldValue }) => (
+              <Form>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="First Name"
+                      variant="outlined"
+                      fullWidth
+                      name="firstName"
+                      value={values.firstName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.firstName && Boolean(errors.firstName)}
+                      helperText={touched.firstName && errors.firstName}
+                    />
                   </Grid>
-            <Button
-              style={{
-                width: "90%",
-                marginRight: "auto",
-                marginLeft: "auto",
-                display: "block",
-                color: "black",
-                fontFamily: "Barlow",
-                backgroundImage:
-                  "linear-gradient(90deg, #c9d6ff 0%, #e2e2e2 100%)",
-              }}
-              onClick={formik.handleSubmit}
-              type="submit"
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Submit
-            </Button>
-          </Box>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Last Name"
+                      variant="outlined"
+                      fullWidth
+                      name="lastName"
+                      value={values.lastName}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.lastName && Boolean(errors.lastName)}
+                      helperText={touched.lastName && errors.lastName}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Email"
+                      variant="outlined"
+                      fullWidth
+                      name="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.email && Boolean(errors.email)}
+                      helperText={touched.email && errors.email}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Password"
+                      type="password"
+                      variant="outlined"
+                      fullWidth
+                      name="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.password && Boolean(errors.password)}
+                      helperText={touched.password && errors.password}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth variant="outlined">
+                      <InputLabel htmlFor="subject">Subject</InputLabel>
+                      <Select
+                        label="Subject"
+                        native
+                        name="subject"
+                        value={values.subject}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        error={touched.subject && Boolean(errors.subject)}
+                      >
+                        <option aria-label="None" value="" />
+                        {subjects.map((subject) => (
+                          <option key={subject} value={subject}>
+                            {subject}
+                          </option>
+                        ))}
+                      </Select>
+                    </FormControl>
+                    {touched.subject && errors.subject && (
+                      <ErrorMessage name="subject" component="div" style={{ color: '#bf3333', marginTop: '5px' }} />
+                    )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Autocomplete
+                      multiple
+                      options={classes}
+                      getOptionLabel={(option) => `Class ${option}`}
+                      value={values.classes}
+                      onChange={(event, newValue) => {
+                        setFieldValue('classes', newValue);
+                      }}
+                      renderInput={(params) => <TextField {...params} label="Classes" variant="outlined" />}
+                    />
+                    {touched.classes && errors.classes && (
+                      <ErrorMessage name="classes" component="div" style={{ color: '#bf3333', marginTop: '5px' }} />
+                    )}
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      label="Bio"
+                      variant="outlined"
+                      fullWidth
+                      multiline
+                      rows={4}
+                      name="bio"
+                      value={values.bio}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.bio && Boolean(errors.bio)}
+                      helperText={touched.bio && errors.bio}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button type="submit" variant="contained" color="primary">
+                      Submit
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Container>
-    </form>
+    </ThemeProvider>
   );
-}
+};
+
+export default MyForm;
