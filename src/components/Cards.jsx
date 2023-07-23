@@ -39,12 +39,12 @@ export default function Cards(props) {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: user.email, name: props.name }),
+        body: JSON.stringify({ email: user.email, userEmail: props.email}),
       });
       const data = await res.json();
       console.log(data.msg);
       if (data.msg == "success") window.location.reload();
-    } catch (err) {
+    } catch (err) { 
       
     }
   };
@@ -98,7 +98,7 @@ export default function Cards(props) {
           {props.name}
         </Typography>
         <Typography  style={{ fontFamily:"BarlowThicc", textTransform: "capitalize" }} variant="body2" color="text.secondary">
-          {props.purpose}
+          {props.email}
         </Typography>
       </CardContent>
       <CardActions >

@@ -178,7 +178,7 @@ export default function ResponsiveDrawer() {
           mt: "4.5vh",
         }}
         >        
-          <DashMentor arr={user.mentors !== undefined ? user.mentors : []} />
+          <DashMentor arr={user.students !== undefined ? user.students : []} />
         </Box>
     </Box>
   );

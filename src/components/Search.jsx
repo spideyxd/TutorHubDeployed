@@ -20,6 +20,8 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import img from "../DesignAssets/user.jpg";
+import {  Modal, TextField } from '@mui/material';
+
 
 const drawerWidth = 240;
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -29,7 +31,8 @@ const capitalizeFirstLetter = (str) => {
 };
 
 export default function ResponsiveDrawer() {
-
+  const [showPopup, setShowPopup] = React.useState(false);
+  const [formEmail, setFormEmail] = useState('');
   const [searchFilter, setSearchFilter] = useState("");
   const [sampleData, setSampleData] = useState([]); // Use useState for sampleData
   const nav = useNavigate();
@@ -62,7 +65,40 @@ export default function ResponsiveDrawer() {
     (item) =>
       item.subject.toLowerCase().includes(searchFilter.toLowerCase())
   );
-  // console.log(sampleData);
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const requestBody = {
+      firstName: formData.get('name'),
+      email: formData.get('email'),
+      itemEmail: formEmail, // Include the item.email in the request body
+    };
+
+    // Send the form data to the /request endpoint (you can use fetch or any HTTP library)
+    fetch(`${BASE_URL}/request`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Response from backend:', data);
+        // Hide the popup after successful submission (you can handle this based on the backend response)
+        setShowPopup(false);
+      })
+      .catch((error) => {
+        console.error('Error sending data to backend:', error);
+      });
+  };
+
+  const handleConnectClick = (item) => {
+    setShowPopup(true);
+    setFormEmail(item); // Set the formEmail state with the current card's item.email
+  };
+
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -109,7 +145,7 @@ export default function ResponsiveDrawer() {
 
         <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 2, mt:2 }}>
           {filteredData.map((item) => (
-            
+            <>
             <Card sx={{ maxWidth: 235 }}>
             <CardMedia
               sx={{ height: 200, }}
@@ -127,10 +163,24 @@ export default function ResponsiveDrawer() {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="small">Connect</Button>
+              <Button size="small" onClick={() => handleConnectClick(item.email.toLowerCase())}>Connect</Button>
               <Button size="small">Check Profile</Button>
             </CardActions>
           </Card>
+          <Modal open={showPopup} onClose={() => setShowPopup(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, boxShadow: 24, width: 300 }}>
+          <Typography variant="h6">Fill in your details</Typography>
+          <form onSubmit={handleSubmit}>
+            <TextField label="Name" name="name" fullWidth required sx={{ mt: 2 }} />
+            <TextField label="Email" name="email" type="email" fullWidth required sx={{ mt: 2 }} readOnly  />
+            <input type="hidden" name="itemEmail" value={item.email} />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
+              Submit
+            </Button>
+          </form>
+        </Box>
+      </Modal>
+          </> 
           ))}
         </Box>
       </Box>
