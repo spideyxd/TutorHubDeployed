@@ -44,8 +44,8 @@ export default function SignInSide() {
 
     validationSchema: validationSchema,
 
-    onSubmit: (values) => {
-      fetch(`${BASE_URL}/loginB`, {
+    onSubmit: (values) => {console.log(BASE_URL);
+                           fetch(`${BASE_URL}/loginB`, {
         method: "POST",
         credentials: "include",
         headers: {
