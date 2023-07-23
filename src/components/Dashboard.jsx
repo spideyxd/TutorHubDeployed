@@ -22,7 +22,6 @@ const drawerWidth = 240;
 const BASE_URL=process.env.REACT_APP_BASE_URL;
 
 export default function ResponsiveDrawer() {
-  const [rolee, setRolee] = React.useState("");
   const [user, setUser] = React.useState({});
   const nav = useNavigate();
 
@@ -38,8 +37,7 @@ export default function ResponsiveDrawer() {
     })
       .then((data) => data.json())
       .then((data) => {
-        
-        setRolee(data.role);
+        // console.log(data);
         setUser(data);
       })
       .catch((err) => {
@@ -48,9 +46,9 @@ export default function ResponsiveDrawer() {
       });
   }, []);
 
-  const { firstName } = user;
+  const { firstName,email,subject } = user;
 
-  const userData = [firstName];
+  const userData = [firstName,email,subject];
 
   const [mobileOpen, setMobileOpen] = React.useState(false);
 

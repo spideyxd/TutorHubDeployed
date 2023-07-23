@@ -6,10 +6,6 @@ import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Button from '@mui/material/Button';
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -20,7 +16,8 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import img from "../DesignAssets/user.jpg";
-import {  Modal, TextField } from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import {  Modal, TextField ,InputBase, IconButton } from '@mui/material';
 
 
 const drawerWidth = 240;
@@ -29,6 +26,62 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
+const useStyles = makeStyles({
+  appBar: {
+    backgroundColor: '#2196F3', // Change the background color to a desired color
+    paddingLeft: '32px',
+    paddingRight: '32px',
+  },
+  title: {
+    flexGrow: 1,
+    display: 'none',
+    '& > span': {
+      fontSize: '1.5rem',
+      fontWeight: 'bold',
+    },
+  },
+  search: {
+    position: 'relative',
+    borderRadius: '4px',
+    backgroundColor: '#f5f5f5',
+    marginLeft: 0,
+    width: '100%',
+  },
+  searchIcon: {
+    padding: '8px',
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#757575',
+  },
+  inputRoot: {
+    color: 'inherit',
+    width: '100%',
+  },
+  
+  inputInput: {
+    padding: '8px',
+    paddingLeft: '32px',
+    width: '100%',
+    '&::placeholder': {
+      color: '#757575',
+    },
+  },
+  appBarCommon: {
+    backgroundColor: '#2196F3', // Change the background color to a desired color
+    paddingLeft: '32px',
+    paddingRight: '32px',
+    color: 'black', // Set the font color to black
+    '& .MuiInputBase-root': {
+      color: 'black', // Set the font color to black for the InputBase component
+    },
+  },
+
+});
+
 
 export default function ResponsiveDrawer() {
   const [showPopup, setShowPopup] = React.useState(false);
@@ -36,7 +89,7 @@ export default function ResponsiveDrawer() {
   const [searchFilter, setSearchFilter] = useState("");
   const [sampleData, setSampleData] = useState([]); // Use useState for sampleData
   const nav = useNavigate();
-
+  const classes = useStyles();
   useEffect(() => {
     fetch(`${BASE_URL}/getAllTutors`, {
       method: "GET",
@@ -57,25 +110,41 @@ export default function ResponsiveDrawer() {
   }, []);
 
 
-  const handleSearchFilterChange = (event) => {
-    setSearchFilter(event.target.value);
+  const handleSubjectFilterChange = (event) => {
+    setSubjectFilter(event.target.value);
   };
-  
-  let filteredData = sampleData.filter(
-    (item) =>
-      item.subject.toLowerCase().includes(searchFilter.toLowerCase())
+
+  const handleClassFilterChange = (event) => {
+    setClassFilter(event.target.value);
+  };
+  const [subjectFilter, setSubjectFilter] = useState("");
+  const [classFilter, setClassFilter] = useState("");
+
+
+
+  // Filter the data based on subject
+  let filteredBySubjectData = sampleData.filter((item) =>
+    item.subject.toLowerCase().includes(subjectFilter.toLowerCase())
   );
-  
+
+  // Filter the data based on classes
+  let filteredByClassData = sampleData.filter((item) =>
+    item.classes.some((cls) => cls.toLowerCase().includes(classFilter.toLowerCase()))
+  );
+
+  // Use the intersection of the two filtered arrays
+  let filteredData = filteredBySubjectData.filter((item) =>
+    filteredByClassData.includes(item)
+  );
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const requestBody = {
       firstName: formData.get('name'),
       email: formData.get('email'),
-      itemEmail: formEmail, // Include the item.email in the request body
+      itemEmail: formEmail, 
     };
 
-    // Send the form data to the /request endpoint (you can use fetch or any HTTP library)
     fetch(`${BASE_URL}/request`, {
       method: 'POST',
       headers: {
@@ -85,63 +154,73 @@ export default function ResponsiveDrawer() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Response from backend:', data);
-        // Hide the popup after successful submission (you can handle this based on the backend response)
+        
         setShowPopup(false);
+        alert("Request sent , We will update you on the provided mail ID ");
       })
       .catch((error) => {
-        console.error('Error sending data to backend:', error);
+        alert("Error ,Try again !");
       });
   };
 
   const handleConnectClick = (item) => {
     setShowPopup(true);
-    setFormEmail(item); // Set the formEmail state with the current card's item.email
+    setFormEmail(item);
   };
 
 
   return (
     <Box sx={{ display: "flex" }}>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
-        }}
-      >
-        <Toolbar />
-        <Divider />
-        <List>
-          {sampleData.map((item) => (
-            <ListItem key={item.id} component="div">
-              <ListItemButton>
-                <ListItemIcon>
-                  <DoubleArrowIcon />
-                </ListItemIcon>
-                <ListItemText primary={item.firstName} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
-      <Box component="main" sx={{ flexGrow: 1, p: 3, }}>
-        <AppBar position="static" color="default">
-          <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1, }}>
-              Tutor Hub
-            </Typography>
-            <SearchIcon sx={{ mr: 1 }} />
-            <input
+        <Box component="main" sx={{ flexGrow: 1, p: 3, }}>
+        {/* Add the second search bar for classes */}
+        <AppBar position="static" className={classes.appBarCommon}>
+        <Toolbar>
+          <Typography className={classes.title} variant="h6" noWrap>
+            <span>Tutor Hub</span>
+          </Typography>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              {/* <SearchIcon /> */}
+            </div>
+            <InputBase
               type="text"
-              placeholder="Search..."
-              value={searchFilter}
-              onChange={handleSearchFilterChange}
+              placeholder=" Enter Subject ... (for example : math )"
+              value={subjectFilter}
+              onChange={handleSubjectFilterChange}
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
             />
-            <LogoutIcon sx={{ ml: 2 }} />
-          </Toolbar>
-        </AppBar>
+          </div>
+          <IconButton color="inherit">
+            {/* <LogoutIcon /> */}
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+
+      {/* Second AppBar */}
+      <AppBar position="static" className={classes.appBarCommon}>
+        <Toolbar>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              {/* <SearchIcon /> */}
+            </div>
+            <InputBase
+              type="text"
+              placeholder=" Enter Class ... (for example : 10 )"
+              value={classFilter}
+              onChange={handleClassFilterChange}
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+            />
+          </div>
+        </Toolbar>
+      </AppBar>
 
         <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 2, mt:2 }}>
           {filteredData.map((item) => (
