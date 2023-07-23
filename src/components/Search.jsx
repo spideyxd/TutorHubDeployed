@@ -1,12 +1,11 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Divider from "@mui/material/Divider";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
+import Button from '@mui/material/Button';
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -14,104 +13,56 @@ import DoubleArrowIcon from "@mui/icons-material/DoubleArrow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SearchIcon from "@mui/icons-material/Search"; // Import the SearchIcon
+import SearchIcon from "@mui/icons-material/Search";  
 import { useNavigate } from "react-router-dom";
-import DashMentee from "./Dash_Mentee";
-import DashMentor from "./Dash_Mentor";
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import img from "../DesignAssets/user.jpg";
 
 const drawerWidth = 240;
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-const sampleData = [
-  {
-    id: 1,
-    firstName: "Shivam",
-    lastName: "Spidey",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 2,
-    firstName: "Saket",
-    lastName: "Kothari",
-    email: "kothari.saket@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 3,
-    firstName: "Advit",
-    lastName: "Sharma",
-    email: "sharma.advit@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 4,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 5,
-    firstName: "Amol",
-    lastName: "Pratap",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 6,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 7,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 8,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 9,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-  {
-    id: 10,
-    firstName: "Shivam",
-    lastName: "Smith",
-    email: "spidey.shivam@example.com",
-    bio: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  },
-];
+const capitalizeFirstLetter = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 export default function ResponsiveDrawer() {
-  const [rolee, setRolee] = useState("");
-  const [user, setUser] = useState({});
+
   const [searchFilter, setSearchFilter] = useState("");
+  const [sampleData, setSampleData] = useState([]); // Use useState for sampleData
   const nav = useNavigate();
+
+  useEffect(() => {
+    fetch(`${BASE_URL}/getAllTutors`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((data) => data.json())
+      .then((data) => {
+        setSampleData(data); // Use setSampleData to update the value of sampleData
+      })
+      .catch((err) => {
+        alert(err);
+        nav("/error");
+      });
+  }, []);
+
 
   const handleSearchFilterChange = (event) => {
     setSearchFilter(event.target.value);
   };
-
-  const filteredData = sampleData.filter(
+  
+  let filteredData = sampleData.filter(
     (item) =>
-      item.firstName.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      item.lastName.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      item.bio.toLowerCase().includes(searchFilter.toLowerCase())
+      item.subject.toLowerCase().includes(searchFilter.toLowerCase())
   );
+  // console.log(sampleData);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -158,17 +109,28 @@ export default function ResponsiveDrawer() {
 
         <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 2, mt:2 }}>
           {filteredData.map((item) => (
-            <Card key={item.id}>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  {item.firstName} {item.lastName}
-                </Typography>
-                <Typography color="text.secondary">{item.email}</Typography>
-                <Typography variant="body2" component="p">
-                  {item.bio}
-                </Typography>
-              </CardContent> +
-            </Card>
+            
+            <Card sx={{ maxWidth: 235 }}>
+            <CardMedia
+              sx={{ height: 200, }}
+              image={img}
+              title="green iguana"
+            />
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="div">
+              {capitalizeFirstLetter(item.firstName.toLowerCase())}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+              {capitalizeFirstLetter(item.bio.toLowerCase())}
+        <br />
+        Subject: {capitalizeFirstLetter(item.subject.toLowerCase())}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Button size="small">Connect</Button>
+              <Button size="small">Check Profile</Button>
+            </CardActions>
+          </Card>
           ))}
         </Box>
       </Box>
