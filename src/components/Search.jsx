@@ -1,15 +1,9 @@
 import React, { useState ,useEffect} from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import Button from '@mui/material/Button';
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import LogoutIcon from "@mui/icons-material/Logout";
-import SearchIcon from "@mui/icons-material/Search";  
+import Typography from "@mui/material/Typography";  
 import { useNavigate } from "react-router-dom";
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -84,12 +78,14 @@ const useStyles = makeStyles({
 
 
 export default function ResponsiveDrawer() {
+const [showPopup2, setShowPopup2] = React.useState(false);
+  const [formEmail2, setFormEmail2] = useState('');
   const [showPopup, setShowPopup] = React.useState(false);
   const [formEmail, setFormEmail] = useState('');
-  const [searchFilter, setSearchFilter] = useState("");
   const [sampleData, setSampleData] = useState([]); // Use useState for sampleData
   const nav = useNavigate();
   const classes = useStyles();
+
   useEffect(() => {
     fetch(`${BASE_URL}/getAllTutors`, {
       method: "GET",
@@ -109,6 +105,30 @@ export default function ResponsiveDrawer() {
       });
   }, []);
 
+  const [reviewsData, setReviewsData] = useState([]);
+  const [showReviewsPopup, setShowReviewsPopup] = useState(false);
+
+  // Function to fetch reviews for a specific tutor
+  const fetchReviewsData = (email) => {
+    // Make a request to the backend API to fetch reviews for the tutor with the given email
+    fetch(`${BASE_URL}/getReviewsByTutorEmail?email=${email}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((data) => data.json())
+      .then((data) => {
+        setReviewsData(data); // Update the reviews data state with the fetched data
+        setShowReviewsPopup(true); // Show the reviews popup
+      })
+      .catch((err) => {
+        alert("Error fetching reviews.");
+      });
+  };
+  
 
   const handleSubjectFilterChange = (event) => {
     setSubjectFilter(event.target.value);
@@ -162,12 +182,41 @@ export default function ResponsiveDrawer() {
         alert("Error ,Try again !");
       });
   };
+  const handleSubmit2 = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const requestBody = {
+      test: formData.get('test'),
+      email: formData.get('email'),
+      itemEmail: formEmail2, 
+    };
+
+    fetch(`${BASE_URL}/testimonial`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        
+        setShowPopup2(false);
+        window.location.reload();
+      })
+      .catch((error) => {
+        alert("Error ,Try again !");
+      });
+  };
 
   const handleConnectClick = (item) => {
     setShowPopup(true);
     setFormEmail(item);
   };
-
+  const handleConnectClick2 = (item) => {
+    setShowPopup2(true);
+    setFormEmail2(item);
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -231,22 +280,40 @@ export default function ResponsiveDrawer() {
               image={img}
               title="green iguana"
             />
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
-              {capitalizeFirstLetter(item.firstName.toLowerCase())}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-              {capitalizeFirstLetter(item.bio.toLowerCase())}
-        <br />
-        Subject: {capitalizeFirstLetter(item.subject.toLowerCase())}
-              </Typography>
-            </CardContent>
+      <CardContent>
+  <Typography gutterBottom variant="h5" component="div" style={{ fontWeight: 'bold' }}>
+    <strong>{capitalizeFirstLetter(item.firstName.toLowerCase())}</strong>
+  </Typography>
+  <Typography variant="body2" color="text.secondary" style={{ fontWeight: 'bold' }}>
+    <strong>Qualifications:</strong>
+    <ul>
+      {item.qualifications.map((qualification, index) => (
+        <li key={index}>
+          <strong>{capitalizeFirstLetter(qualification.toLowerCase())}</strong>
+        </li>
+      ))}
+    </ul>
+    <strong>Subject:</strong> {capitalizeFirstLetter(item.subject.toLowerCase())}
+    <br />
+    <strong>Classes:</strong> {item.classes.map((classItem, index) => (
+      <React.Fragment key={index}>
+        <strong>{`${classItem}${index !== item.classes.length - 1 ? ',' : ''}`}</strong>
+        &nbsp;
+      </React.Fragment>
+    ))}
+  </Typography>
+</CardContent>
+
+
+
+
+
             <CardActions>
               <Button size="small" onClick={() => handleConnectClick(item.email.toLowerCase())}>Connect</Button>
-              <Button size="small">Check Profile</Button>
+              <Button size="small"  onClick={() => fetchReviewsData(item.email.toLowerCase())}>Reviews</Button>
             </CardActions>
           </Card>
-          <Modal open={showPopup} onClose={() => setShowPopup(false)}>
+      <Modal open={showPopup} onClose={() => setShowPopup(false)}>
         <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, boxShadow: 24, width: 300 }}>
           <Typography variant="h6">Fill in your details</Typography>
           <form onSubmit={handleSubmit}>
@@ -259,6 +326,90 @@ export default function ResponsiveDrawer() {
           </form>
         </Box>
       </Modal>
+      <Modal open={showPopup2} onClose={() => setShowPopup2(false)}>
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, boxShadow: 24, width: 300 }}>
+          <Typography variant="h6">Fill in your details</Typography>
+          <form onSubmit={handleSubmit2}>
+            <TextField label="Testimonial" name="test" fullWidth required sx={{ mt: 2 }} />
+            <TextField label="Email" name="email" type="email" fullWidth required sx={{ mt: 2 }} readOnly  />
+            <input type="hidden" name="itemEmail" value={item.email} />
+            <Button type="submit" variant="contained" sx={{ mt: 2 }} fullWidth>
+              Submit
+            </Button>
+          </form>
+        </Box>
+      </Modal>
+      <Modal open={showReviewsPopup} onClose={() => setShowReviewsPopup(false)}>
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "row", // Set the direction to row for horizontal layout
+      position: "absolute",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      bgcolor: "background.paper",
+      p: 4,
+      boxShadow: 24,
+      width: "70%", // Adjust the width as needed
+      maxHeight: "90%",
+      overflowY: "auto",
+    }}
+  >
+    <Box
+      sx={{
+        flex: 1, // This will make the content occupy the full available width
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography variant="h3" sx={{ my: 4, textAlign: "center", fontWeight: "bold", color: "#2196F3" }}>
+        Testimonials
+      </Typography>
+      {reviewsData.map((review, index) => (
+        <Box
+          key={index}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            p: 2,
+            border: "1px solid #ccc",
+            borderRadius: 8,
+            my: 2,
+            fontWeight: "bold", // Make the testimonial text bold
+            fontSize: "1.2rem", // Set a decent font size for the testimonial text
+          }}
+        >
+          {/* Show the email as a "by" quote */}
+          <Typography variant="body1" gutterBottom>
+            "{review.test}"
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ alignSelf: "flex-end" }}>
+            - by {review.email}
+          </Typography>
+        </Box>
+      ))}
+      {/* Center the Close button */}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2}}>
+  
+        <br/>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleConnectClick2(item.email.toLowerCase())}
+        >
+          Submit Review 
+        </Button>
+      </Box>
+    </Box>
+  </Box>
+</Modal>
+
+
+      
           </> 
           ))}
         </Box>

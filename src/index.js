@@ -22,6 +22,7 @@ root.render(
         <Route path="error" element={<Error/>} />
         <Route path="team" element={<Team/>} />
         <Route path="search" element={<Search/>} />
+     
 
       </Routes>
     </BrowserRouter>
