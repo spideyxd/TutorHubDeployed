@@ -316,6 +316,7 @@ const MyForm = () => {
               subject: '',
               classes: [],
               qualifications: [],
+              testimonials:[]
             }}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
