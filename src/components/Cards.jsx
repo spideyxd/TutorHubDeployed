@@ -31,6 +31,39 @@ export default function Cards(props) {
       nav("/login");
     }
   };
+
+
+  const DeclineEmail = async () => {
+    
+    const toSend = {
+   
+        from_name: user.firstName,
+        from_email: user.email,
+        to_name: props.name,
+        to_email: props.email,
+      
+    };
+     
+    
+    emailjs
+      .send(
+        "service_xt8yg1p",
+        "template_zu69wcu",
+        toSend,
+        "kFEBDIeZrqu4chvpx"
+      )
+      .then(
+        (result) => {
+      
+        },
+        (error) => {
+          alert(error.text);
+        }
+      );
+
+      
+  };
+
   const deleteCard = async () => {
     try {
       const res = await fetch(`${BASE_URL}/decline`, {
@@ -42,8 +75,25 @@ export default function Cards(props) {
         body: JSON.stringify({ email: user.email, userEmail: props.email}),
       });
       const data = await res.json();
-      console.log(data.msg);
-      if (data.msg == "success") window.location.reload();
+      
+      if (data.msg == "success"){ DeclineEmail();window.location.reload();}
+    } catch (err) { 
+      
+    }
+  };
+  const AcceptCard = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}/decline`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: user.email, userEmail: props.email}),
+      });
+      const data = await res.json();
+      
+      if (data.msg == "success"){ window.location.reload();}
     } catch (err) { 
       
     }
@@ -75,7 +125,7 @@ export default function Cards(props) {
       .then(
         (result) => {
           alert("Mail Sent !");
-           deleteCard();
+           AcceptCard();
         },
         (error) => {
           alert(error.text);
