@@ -54,7 +54,7 @@ export default function Cards(props) {
       )
       .then(
         (result) => {
-      
+        alert("declined");
         },
         (error) => {
           alert(error.text);
@@ -76,7 +76,7 @@ export default function Cards(props) {
       });
       const data = await res.json();
       
-      if (data.msg == "success"){ DeclineEmail();window.location.reload();}
+      if (data.msg == "success"){ DeclineEmail();console.log("deleted"); window.location.reload();}
     } catch (err) { 
       
     }
